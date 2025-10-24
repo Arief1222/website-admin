@@ -1,10 +1,7 @@
 import db from "@/lib/db";
 import { BannerForm } from "./components/banner-form";
 
-type Params = {
-  storeId: string;
-  bannerId: string;
-};
+type Params = { storeId: string; bannerId: string };
 
 export default async function BannerPage({
   params,
@@ -14,9 +11,7 @@ export default async function BannerPage({
   const { bannerId } = await params;
 
   const banner = await db.banner.findUnique({
-    where: {
-      id: bannerId,
-    },
+    where: { id: bannerId },
   });
 
   return (
