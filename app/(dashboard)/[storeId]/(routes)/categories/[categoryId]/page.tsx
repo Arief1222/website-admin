@@ -1,31 +1,25 @@
 import db from "@/lib/db";
 import { CategoryForm } from "./components/category-form";
 
-const CategoryPage = async ({
-    params
+type Params = { storeId: string; categoryId: string };
+
+export default async function CategoryPage({
+  params,
 }: {
+  params: Promise<Params>;
+}) {
+  const { storeId, categoryId } = await params;
 
-    params: { categoryId: string, storeId: string }
-}) => {
-    const category = await db.category.findUnique({
-        where: {
-            id: params.categoryId
-        }
-    })
+  const [category, banners] = await Promise.all([
+    db.category.findUnique({ where: { id: categoryId } }),
+    db.banner.findMany({ where: { storeId } }),
+  ]);
 
-    const banners = await db.banner.findMany({
-        where: {
-            storeId: params.storeId
-        }
-    })
-
-    return (
-        <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-                <CategoryForm banners={banners} initialData={category} />
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <CategoryForm banners={banners} initialData={category} />
+      </div>
+    </div>
+  );
 }
-
-export default CategoryPage;

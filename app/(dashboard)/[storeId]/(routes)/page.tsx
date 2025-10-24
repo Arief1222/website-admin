@@ -1,22 +1,23 @@
 import db from "@/lib/db";
 
-interface DashboardPageProps {
-  params: { storeId: string }
-}
+type Params = { storeId: string };
 
-const DashboardPage = async ({params} : DashboardPageProps) => {
-  
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { storeId } = await params;
+
   const store = await db.store.findFirst({
     where: {
-      id: params.storeId
+      id: storeId,
     },
   });
 
-  return ( 
+  return (
     <div>
       Active Store : {store?.name}
     </div>
   );
 }
-
-export default DashboardPage;

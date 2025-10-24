@@ -1,42 +1,35 @@
 import db from "@/lib/db";
 import CategoryClient from "./components/client";
-import { CategoryColumn} from "./components/columns";
-import { format } from "date-fns"
+import type { CategoryColumn } from "./components/columns"; // type-import
+import { format } from "date-fns";
 
-const CategoriesPage = async ({
-    params 
+type Params = { storeId: string };
+
+export default async function CategoriesPage({
+  params,
 }: {
-    
-   params: { storeId: string }
-}) => {
+  params: Promise<Params>;
+}) {
+  const { storeId } = await params;
 
-const categories = await db.category.findMany({
-    where: {
-        storeId: params.storeId
-    },
-    include : {
-        banner: true
-    },
-    orderBy: {
-        createdAt: "desc"
-    }   
+  const categories = await db.category.findMany({
+    where: { storeId },
+    include: { banner: true },
+    orderBy: { createdAt: "desc" },
+  });
 
-})
-
-const formattedCategories:CategoryColumn[] = categories.map((item) => ({
+  const formattedCategories: CategoryColumn[] = categories.map((item) => ({
     id: item.id,
     name: item.name,
-    bannerLabel: item.banner.label,
-    createdAt: format(item.createdAt, "MMMM do, yyyy 'at' h:mm a")  
-}));
+    bannerLabel: item.banner?.label ?? "-", // aman kalau nullable
+    createdAt: format(item.createdAt, "MMMM do, yyyy 'at' h:mm a"),
+  }));
 
-    return (
-        <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-                <CategoryClient data={formattedCategories}/>
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <CategoryClient data={formattedCategories} />
+      </div>
+    </div>
+  );
 }
-
-export default CategoriesPage;

@@ -1,35 +1,31 @@
 import db from "@/lib/db";
 import { ProductForm } from "./components/product-form";
 
-const ProductPage = async ({
-    params
+type Params = { storeId: string; productId: string };
+
+export default async function ProductPage({
+  params,
 }: {
+  params: Promise<Params>;
+}) {
+  const { storeId, productId } = await params;
 
-    params: { productId: string, storeid: string }
-}) => {
-    const product = await db.product.findUnique({
-        where: {
-            id: params.productId
-        },
+  const [product, categories] = await Promise.all([
+    db.product.findUnique({
+      where: { id: productId },
+      include: { images: true },
+    }),
+    db.category.findMany({
+      where: { storeId },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
-        include: {
-            images: true,
-        }
-    })
-
-   const categories = await db.category.findMany({
-    where: {
-        storeId: params.storeid
-    }
-   })
-
-    return (
-        <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-            <ProductForm initialData={product} categories={categories} />
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <ProductForm initialData={product} categories={categories} />
+      </div>
+    </div>
+  );
 }
-
-export default ProductPage;
